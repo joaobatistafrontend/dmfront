@@ -1,0 +1,86 @@
+<!-- Sidebar Desktop -->
+<aside 
+    class="bg-[#004b93] text-white transition-all duration-300 hidden md:flex flex-col sticky top-0 h-screen shadow-xl z-20"
+    :class="sidebarOpen ? 'w-64' : 'w-20'"
+>
+    <div class="p-4 flex items-center justify-between border-b border-blue-800/50">
+        <template x-if="sidebarOpen">
+            <span class="font-bold text-xl tracking-tight animate-in fade-in">Portal DM</span>
+        </template>
+        <button @click="sidebarOpen = !sidebarOpen" class="p-2 hover:bg-blue-700 rounded-lg transition-colors">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <nav class="flex-1 mt-6">
+        <ul class="space-y-2 px-3">
+            <li class="bg-blue-700/50 rounded-lg">
+                <a href="/" class="flex items-center p-3 gap-3 transition-all">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <template x-if="sidebarOpen">
+                        <span class="animate-in fade-in">Contestações</span>
+                    </template>
+                </a>
+            </li>
+            <li class="hover:bg-blue-700/30 rounded-lg transition-colors">
+                <a href="#" class="flex items-center p-3 gap-3">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <template x-if="sidebarOpen">
+                        <span class="animate-in fade-in">Relatórios</span>
+                    </template>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="p-4 border-t border-blue-800/50">
+        <button class="flex items-center w-full p-3 gap-3 hover:bg-red-500/20 text-red-100 rounded-lg transition-colors group">
+            <i data-lucide="log-out" class="w-5 h-5 group-hover:text-red-400"></i>
+            <template x-if="sidebarOpen">
+                <span class="animate-in fade-in">Sair do Sistema</span>
+            </template>
+        </button>
+    </div>
+</aside>
+
+<!-- Mobile Overlay & Sidebar -->
+<div 
+    x-show="mobileMenuOpen" 
+    x-cloak
+    class="fixed inset-0 bg-black/50 z-50 md:hidden"
+    x-transition:enter="transition opacity-0 ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition opacity-100 ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    @click="mobileMenuOpen = false"
+>
+    <div 
+        class="w-64 bg-[#004b93] h-full text-white p-4"
+        @click.stop
+        x-transition:enter="transition transform -translate-x-full ease-out duration-300"
+        x-transition:enter-start="-translate-x-full"
+        x-transition:enter-end="translate-x-0"
+    >
+        <div class="flex justify-between items-center mb-8">
+            <span class="font-bold text-xl">Portal DM</span>
+            <button @click="mobileMenuOpen = false">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <nav class="space-y-4">
+            <a href="/" class="flex items-center gap-3 p-3 bg-blue-700 rounded-lg">
+                <i data-lucide="layout-dashboard"></i> Contestações
+            </a>
+            <a href="#" class="flex items-center gap-3 p-3 hover:bg-blue-700 rounded-lg">
+                <i data-lucide="file-text"></i> Relatórios
+            </a>
+            <div class="pt-10">
+                <button class="flex items-center gap-3 p-3 text-red-200 w-full text-left">
+                    <i data-lucide="log-out"></i> Sair
+                </button>
+            </div>
+        </nav>
+    </div>
+</div>

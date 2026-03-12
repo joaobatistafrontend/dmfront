@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}Contestações Abertas | Portal DM{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto" x-data="{ isModalOpen: false, selected: {} }">
+    
+    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-[#004b93]">Contestações Abertas</h1>
+            <p class="text-slate-500 text-sm">Gerencie as solicitações de contestação de compras pendentes.</p>
+        </div>
+        <div class="relative">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+            <input 
+                type="text" 
+                placeholder="Buscar protocolo ou CPF..." 
+                class="pl-10 pr-4 py-2 border border-slate-200 rounded-full w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+            >
+        </div>
+    </div>
+
+    <!-- Tabela de Contestações -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200">
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Protocolo</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Emissão</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">CPF / Associado</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Nome Cliente</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-center">Status</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Ação</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    <!-- MOCK DATA PARA TESTE (Remover quando integrar com o Django) -->
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-blue-600">20240915001</td>
+                        <td class="px-6 py-4 text-slate-600">15/09/2024</td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold">123.456.789-00</span>
+                                <span class="text-xs text-slate-400">Cod: 8821</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 font-medium">Carlos Eduardo da Silva</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-[10px] font-bold uppercase tracking-wider">Aberto</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button 
+                                @click="selected = { protocolo: '20240915001', emissao: '15/09/2024', status: 'Aberto', departamento: 'Fraudes', cliente: 'Carlos Eduardo da Silva', cpf: '123.456.789-00', cod_associado: '8821', empresa: 'Supermercado Exemplo LTDA', op_nome: 'Fernanda Lima', op_cpf: '987.654.321-11', op_depto: 'Atendimento N1', desc1: 'O cliente afirma que não reconhece a compra realizada no dia 14/09.', desc2: 'Cartão estava em posse do titular no momento da transação.' }; isModalOpen = true"
+                                class="inline-flex items-center gap-2 bg-[#004b93] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-all shadow-sm"
+                            >
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                Visualizar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-blue-600">20240915042</td>
+                        <td class="px-6 py-4 text-slate-600">14/09/2024</td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold">456.789.123-55</span>
+                                <span class="text-xs text-slate-400">Cod: 5543</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 font-medium">Mariana Oliveira</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-[10px] font-bold uppercase tracking-wider">Aberto</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button 
+                                @click="selected = { protocolo: '20240915042', emissao: '14/09/2024', status: 'Aberto', departamento: 'Comercial', cliente: 'Mariana Oliveira', cpf: '456.789.123-55', cod_associado: '5543', empresa: 'Posto de Gasolina Shell', op_nome: 'Ricardo Souza', op_cpf: '111.222.333-44', op_depto: 'Análise de Crédito', desc1: 'Valor cobrado em duplicidade na fatura.', desc2: '' }; isModalOpen = true"
+                                class="inline-flex items-center gap-2 bg-[#004b93] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-all shadow-sm"
+                            >
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                Visualizar
+                            </button>
+                        </td>
+                    </tr>
+                    <!-- FIM DO MOCK DATA -->
+
+                    {% for item in contestacoes %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-blue-600">{{ item.protocolo|default:"" }}</td>
+                        <td class="px-6 py-4 text-slate-600">{{ item.emissao|date:"d/m/Y"|default:"" }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold">{{ item.cpf|default:"" }}</span>
+                                <span class="text-xs text-slate-400">Cod: {{ item.cod_associado|default:"" }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 font-medium">{{ item.nome_cliente|default:"" }}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                {{ item.status|default:"Aberto" }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button 
+                                @click="
+                                    selected = {
+                                        protocolo: '{{ item.protocolo }}',
+                                        emissao: '{{ item.emissao|date:'d/m/Y' }}',
+                                        status: '{{ item.status }}',
+                                        departamento: '{{ item.departamento }}',
+                                        cliente: '{{ item.nome_cliente }}',
+                                        cpf: '{{ item.cpf }}',
+                                        cod_associado: '{{ item.cod_associado }}',
+                                        empresa: '{{ item.estabelecimento }}',
+                                        op_nome: '{{ item.operador.nome }}',
+                                        op_cpf: '{{ item.operador.cpf }}',
+                                        op_depto: '{{ item.operador.departamento }}',
+                                        desc1: '{{ item.descricao1 }}',
+                                        desc2: '{{ item.descricao2 }}'
+                                    }; 
+                                    isModalOpen = true"
+                                class="inline-flex items-center gap-2 bg-[#004b93] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-all shadow-sm"
+                            >
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                Visualizar
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    {% if not contestacoes %}
+                    <!-- Só exibe se não houver mock data nem dados do Django -->
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal de Visualização -->
+    <div 
+        x-show="isModalOpen" 
+        x-cloak
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4"
+    >
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="isModalOpen = false"></div>
+        
+        <div 
+            class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+        >
+            <!-- Modal Header -->
+            <div class="bg-[#004b93] text-white p-6 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/20 rounded-lg">
+                        <i data-lucide="file-text" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold">Detalhes da Contestação</h2>
+                        <p class="text-blue-100 text-xs" x-text="'Protocolo: ' + (selected.protocolo || '-')"></p>
+                    </div>
+                </div>
+                <button @click="isModalOpen = false" class="p-2 hover:bg-white/20 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 md:p-8 overflow-y-auto space-y-8">
+                
+                <!-- Dados Ticket -->
+                <div class="grid md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">Protocolo</span>
+                        <span class="font-semibold" x-text="selected.protocolo || '-'"></span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">Emissão</span>
+                        <span class="font-semibold" x-text="selected.emissao || '-'"></span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">Status Ticket</span>
+                        <span class="font-semibold text-yellow-600" x-text="selected.status || '-'"></span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">Departamento</span>
+                        <span class="font-semibold" x-text="selected.departamento || '-'"></span>
+                    </div>
+                </div>
+
+                <!-- Cliente e Empresa -->
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-[#004b93] border-b pb-2 flex items-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4"></i> Cliente / Associado
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2">
+                                <p class="text-xs text-slate-500 uppercase">Nome</p>
+                                <p class="font-medium" x-text="selected.cliente || '-'"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 uppercase">CPF</p>
+                                <p class="font-medium" x-text="selected.cpf || '-'"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 uppercase">Cód. Associado</p>
+                                <p class="font-medium" x-text="selected.cod_associado || '-'"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-[#004b93] border-b pb-2 flex items-center gap-2">
+                            <i data-lucide="building-2" class="w-4 h-4"></i> Estabelecimento / Empresa
+                        </h3>
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase">Nome / Empresa</p>
+                            <p class="font-medium" x-text="selected.empresa || '-'"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Operador -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-bold text-[#004b93] border-b pb-2 flex items-center gap-2">
+                        <i data-lucide="headphones" class="w-4 h-4"></i> Operador
+                    </h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase">Nome</p>
+                            <p class="font-medium" x-text="selected.op_nome || '-'"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase">CPF</p>
+                            <p class="font-medium" x-text="selected.op_cpf || '-'"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase">Departamento</p>
+                            <p class="font-medium" x-text="selected.op_depto || '-'"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descrições -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-bold text-[#004b93] border-b pb-2">Descrição</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Relato 1</p>
+                            <p class="text-sm text-slate-700 italic" x-text="selected.desc1 || 'Vazio'"></p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Relato 2</p>
+                            <p class="text-sm text-slate-700" x-text="selected.desc2 || 'Vazio'"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 bg-slate-50 border-t flex justify-end gap-3">
+                <button @click="isModalOpen = false" class="px-6 py-2 border rounded-lg hover:bg-slate-100 transition-colors">Fechar</button>
+                <button class="px-6 py-2 bg-[#004b93] text-white rounded-lg hover:bg-blue-800 transition-shadow shadow-md">Imprimir</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
