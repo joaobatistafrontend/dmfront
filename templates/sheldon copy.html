@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}Análise Sheldon IA | Portal DM{% endblock %}
+
+{% block content %}
+<!-- Alpine.js State para simular a análise -->
+<div class="max-w-7xl mx-auto" x-data="{ 
+    analyzing: false, 
+    showResults: false,
+    // Dados da Leitura da Contestação (Exemplo do JSON fornecido)
+    leitura: {
+        'protocolo': '20240915001',
+        'emissao': { 'data': '12/03', 'hora': '17:24' },
+        'cliente': { 'cpf': '123.456.789-00', 'status_associado': 'ATIVO' },
+        'resumo_contestacao': { 'motivos': ['Não reconhece compra'], 'menciona_cancelamento_ou_bloqueio': false },
+        'itens_contestados': [
+            { 'data': '12/03', 'hora': '17:24', 'valor': 266.22, 'estabelecimento': 'Loja Exemplo', 'modalidade': 'ONLINE', 'parcelas': 1, 'ultimos_4_digitos': '1106' }
+        ],
+        'texto_origem': 'DATA E HORA DA COMPRA: 12/03 17:24 VALOR DA COMPRA: 266,22 COMPRA FOI À VISTA OU PARCELADA? A VISTA COMPRA FOI ONLINE OU COM CHIP E SENHA? ONLINE OS 4 ÚLTIMOS DÍGITOS DO CARTÃO UTILIZADO. 1106'
+    },
+    // Resumo da IA
+    analiseIA: {
+        'parecer_geral': 'PENDENTE',
+        'resumo': { 'qtd_compras_relacionadas': 0, 'estabelecimentos': [], 'canais_envolvidos': ['E-commerce'], 'padroes_detectados': ['Inconsistência de Localização'] },
+        'itens_analise': [
+            {
+                'contestado': { 'data': '12/03', 'hora': '17:24', 'valor': 266.22, 'estabelecimento': null, 'parcelas': 1, 'ultimos_4_digitos': '1106', 'modalidade_informada': 'ONLINE' },
+                'justificativa': 'Nenhuma transação no histórico corresponde aos dados da contestação dentro da tolerância de data, valor e últimos 4 dígitos. Aguarda-se confirmação ou processamento da transação para análise futura.'
+            }
+        ],
+        'orientacoes': {
+            'mensagem_cliente': 'Sua contestação está em análise. Aguardamos confirmação da transação para prosseguir com a verificação.',
+            'mensagem_sac': 'Transação contestada no dia 12/03 às 17:24 com valor R$ 266,22 não localizada no histórico atual do cliente.'
+        },
+        'pendencias': ['incognia', 'boletim_ocorrencia', 'imagem_estabelecimento']
+    },
+    startAnalysis() {
+        this.analyzing = true;
+        this.showResults = false;
+        setTimeout(() => {
+            this.analyzing = false;
+            this.showResults = true;
+        }, 2000);
+    }
+}">
+
+    <!-- Header da Página -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="p-3 bg-blue-100 rounded-2xl text-[#004b93]">
+                <i data-lucide="brain-circuit" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-[#004b93]">Sheldon <span class="text-blue-400">IA</span></h1>
+                <p class="text-slate-500 text-sm">Análise inteligente de documentos e transações.</p>
+            </div>
+        </div>
+        
+        <button 
+            @click="startAnalysis()"
+            :disabled="analyzing"
+            class="flex items-center justify-center gap-3 bg-[#004b93] text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-800 transition-all shadow-lg disabled:opacity-50"
+        >
+            <template x-if="!analyzing">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="play" class="w-5 h-5"></i>
+                    <span>Iniciar Análise IA</span>
+                </div>
+            </template>
+            <template x-if="analyzing">
+                <div class="flex items-center gap-2">
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Processando Dados...</span>
+                </div>
+            </template>
+        </button>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+        
+        <!-- Coluna da Esquerda: Dados de Origem -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-5 h-5 text-blue-500"></i>
+                    Texto de Origem
+                </h3>
+                <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                    <p class="text-sm text-slate-600 leading-relaxed italic" x-text="leitura.texto_origem || 'Nenhum texto carregado.'"></p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="info" class="w-5 h-5 text-blue-500"></i>
+                    Metadados da Leitura
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Versão Schema:</span>
+                        <span class="font-medium">1.1</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Status Associado:</span>
+                        <span class="font-medium text-green-600" x-text="leitura.cliente.status_associado || '-'"></span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Protocolo:</span>
+                        <span class="font-medium" x-text="leitura.protocolo || 'Pendente'"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna da Direita: Resultados da IA -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Placeholder caso não tenha analisado -->
+            <template x-if="!showResults && !analyzing">
+                <div class="bg-white rounded-2xl border-2 border-dashed border-slate-200 h-64 flex flex-col items-center justify-center text-slate-400">
+                    <i data-lucide="scan-search" class="w-12 h-12 mb-3 opacity-20"></i>
+                    <p>Aguardando comando para análise...</p>
+                </div>
+            </template>
+
+            <!-- Resultados da Análise -->
+            <div x-show="showResults" x-cloak class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                
+                <!-- Card 1: Leitura da Contestação -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-slate-50 px-6 py-4 border-b flex justify-between items-center">
+                        <h3 class="font-bold text-[#004b93]">Extração de Dados (Leitura)</h3>
+                        <span class="text-xs font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded">CONFIANÇA ALTA</span>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="text-slate-400 border-b">
+                                        <th class="pb-3 font-semibold text-left">Data/Hora</th>
+                                        <th class="pb-3 font-semibold text-left">Valor</th>
+                                        <th class="pb-3 font-semibold text-left">Modalidade</th>
+                                        <th class="pb-3 font-semibold text-left">Fim Cartão</th>
+                                        <th class="pb-3 font-semibold text-left">Estabelecimento</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="item in leitura.itens_contestados">
+                                        <tr class="border-b last:border-0">
+                                            <td class="py-4 font-medium" x-text="item.data + ' ' + item.hora"></td>
+                                            <td class="py-4 font-bold text-slate-800" x-text="'R$ ' + item.valor.toFixed(2)"></td>
+                                            <td class="py-4">
+                                                <span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold" x-text="item.modalidade"></span>
+                                            </td>
+                                            <td class="py-4" x-text="item.ultimos_4_digitos"></td>
+                                            <td class="py-4 text-slate-500 italic" x-text="item.estabelecimento || 'Não identificado'"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Parecer Sheldon -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Justificativa -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-slate-800">Parecer Geral</h3>
+                            <span 
+                                class="px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest shadow-sm"
+                                :class="analiseIA.parecer_geral === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'"
+                                x-text="analiseIA.parecer_geral"
+                            ></span>
+                        </div>
+                        <div class="flex-1 bg-blue-50/50 p-4 rounded-xl text-sm text-slate-700 border border-blue-100 leading-relaxed">
+                            <i data-lucide="quote" class="w-4 h-4 text-blue-300 mb-2"></i>
+                            <span x-text="analiseIA.itens_analise[0].justificativa"></span>
+                        </div>
+                    </div>
+
+                    <!-- Mensagens e Pendências -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-800">Próximos Passos</h3>
+                        
+                        <div class="space-y-3">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Mensagem Sugerida (SAC)</p>
+                            <p class="text-xs p-3 bg-slate-50 rounded-lg border border-slate-100" x-text="analiseIA.orientacoes.mensagem_sac"></p>
+                        </div>
+
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Pendências de Documentação</p>
+                            <div class="flex flex-wrap gap-2">
+                                <template x-for="p in analiseIA.pendencias">
+                                    <span class="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-lg border border-red-100 uppercase" x-text="p.replace('_', ' ')"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumo de Padrões -->
+                <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="border-r border-white/10 last:border-0">
+                            <p class="text-xs text-slate-400 mb-1">Canais Envolvidos</p>
+                            <div class="flex gap-2">
+                                <template x-for="canal in analiseIA.resumo.canais_envolvidos">
+                                    <span class="text-sm font-bold flex items-center gap-1">
+                                        <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                        <span x-text="canal"></span>
+                                    </span>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="border-r border-white/10 last:border-0">
+                            <p class="text-xs text-slate-400 mb-1">Padrões Detectados</p>
+                            <template x-for="padrao in analiseIA.resumo.padroes_detectados">
+                                <p class="text-sm font-bold text-yellow-400" x-text="padrao"></p>
+                            </template>
+                        </div>
+                        <div class="last:border-0">
+                            <p class="text-xs text-slate-400 mb-1">Score de Risco IA</p>
+                            <div class="w-full bg-white/10 h-2 rounded-full mt-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Refresh icons after Alpine finishes rendering
+    document.addEventListener('alpine:initialized', () => {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}
